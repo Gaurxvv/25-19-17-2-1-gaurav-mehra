@@ -1,0 +1,7 @@
+Fix multiple issues and enhance UX (#1, #2, #25, #17, #19)
+
+- [Bug] Successive Task Submissions Overwrite Previous Data: Fixed by creating new submission records instead of upserting based on taskId.
+- [Bug] Task Assignment Allows Admin-to-Admin Assignment: Added validation to ensure tasks can only be assigned to users with the 'Talent' role.
+- [Feature] Add Visual Statistics Dashboard for Admins: Added 'Active Talents' KPI widget to the Admin Dashboard.
+- [UI] Replace Native Browser alerts with Toast Notifications: Integrated react-hot-toast for a better, non-blocking user experience across the app.
+- [UX] Logout Button Lacks Clear Affordance: Added a clear 'Logout' text label next to the logout icon in the sidebars.

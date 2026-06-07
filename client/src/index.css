@@ -261,6 +261,7 @@ body {
 .stat-card-blue::after    { background: #3B82F6; }
 .stat-card-info::after    { background: #3B82F6; }
 .stat-card-green::after   { background: #10B981; }
+.stat-card-purple::after  { background: #A855F7; }
 
 /* ─────────────────────────────────────────
    Table — Modern

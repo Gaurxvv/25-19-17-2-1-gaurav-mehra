@@ -3,7 +3,8 @@ import Sidebar from '../../components/admin/Sidebar';
 import TasksTable from '../../components/admin/TasksTable';
 import CreateTaskModal from '../../components/admin/CreateTaskModal';
 import EditTaskModal from '../../components/admin/EditTaskModal';
-import { fetchAllTasks } from '../../api/tasks';
+import { fetchAllTasks, fetchTalents } from '../../api/tasks';
+import toast from 'react-hot-toast';
 
 /* ── Search icon ── */
 const IconSearch = () => (
@@ -22,6 +23,7 @@ const IconPlus = () => (
 
 const AdminDashboard = () => {
   const [tasks, setTasks]           = useState([]);
+  const [talentsCount, setTalentsCount] = useState(0);
   const [showCreate, setShowCreate] = useState(false);
   const [editTask, setEditTask]     = useState(null);
   const [search, setSearch]         = useState('');
@@ -29,10 +31,14 @@ const AdminDashboard = () => {
 
   const loadTasks = async () => {
     try {
-      const { data } = await fetchAllTasks();
-      setTasks(data);
+      const [{ data: tasksData }, { data: talentsData }] = await Promise.all([
+        fetchAllTasks(),
+        fetchTalents()
+      ]);
+      setTasks(tasksData);
+      setTalentsCount(talentsData.length);
     } catch {
-      alert('Failed to load tasks');
+      toast.error('Failed to load dashboard data');
     }
   };
 
@@ -49,6 +55,7 @@ const AdminDashboard = () => {
   const statCards = [
     { label: 'Total Tasks', value: stats.total,     colorClass: 'stat-card-default', valueColor: '#E5E2E1' },
     { label: 'Open',        value: stats.open,      colorClass: 'stat-card-blue',    valueColor: '#60A5FA' },
+    { label: 'Active Talents', value: talentsCount, colorClass: 'stat-card-purple',  valueColor: '#A855F7' },
     { label: 'Submitted',   value: stats.submitted, colorClass: 'stat-card-info',    valueColor: '#60A5FA' },
     { label: 'Approved',    value: stats.approved,  colorClass: 'stat-card-green',   valueColor: '#34D399' },
   ];
@@ -89,7 +96,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-4 gap-4 mb-6 page-section">
+        <div className="grid grid-cols-5 gap-4 mb-6 page-section">
           {statCards.map(({ label, value, colorClass, valueColor }) => (
             <div key={label} className={`stat-card ${colorClass}`}>
               <span className="block text-[10.5px] font-semibold uppercase tracking-[0.08em] mb-3"

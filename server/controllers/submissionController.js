@@ -1,5 +1,6 @@
-﻿const Submission = require('../models/Submission');
+const Submission = require('../models/Submission');
 const Task = require('../models/Task');
+const fs = require('fs');
 
 // @desc  Submit a task with a file upload
 // @route POST /api/submissions/:taskId
@@ -12,27 +13,29 @@ const submitTask = async (req, res) => {
     // — any authenticated user can submit for any task
     // — a talent can "submit" an Open or Approved task
 
+    let submission = await Submission.findOne({ taskId, talentId: req.user._id });
+
+    if (submission) {
+      if (req.file) {
+        fs.unlink(req.file.path, (err) => {
+          if (err) console.error("Failed to delete orphaned file:", err);
+        });
+      }
+      return res.status(400).json({ message: 'Task already submitted. Multiple submissions are not allowed.' });
+    }
+
     // Build the file URL from multer's saved file
     // with a different PORT or base URL
     const fileUrl = req.file
       ? `http://localhost:5000/uploads/${req.file.filename}`
       : req.body.fileUrl || null;
-    // — no audit trail of re-submissions
-    let submission = await Submission.findOne({ taskId, talentId: req.user._id });
 
-    if (submission) {
-      // Overwrite: update in place
-      submission.fileUrl = fileUrl;
-      submission.notes = notes;
-      await submission.save();
-    } else {
-      submission = await Submission.create({
-        taskId,
-        talentId: req.user._id,
-        fileUrl,
-        notes,
-      });
-    }
+    submission = await Submission.create({
+      taskId,
+      talentId: req.user._id,
+      fileUrl,
+      notes,
+    });
 
     // Update task status to Submitted
     await Task.findByIdAndUpdate(taskId, { status: 'Submitted' });
